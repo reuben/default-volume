@@ -1,0 +1,16 @@
+{
+  "name": "default-volume",
+  "title": "Default Media Volume",
+  "id": "jid1-lDlk3wvzuuQXig",
+  "description": "Set default volume of HTML media",
+  "author": "Reuben Morais",
+  "license": "MPL 2.0",
+  "version": "0.1",
+  "preferences": [{
+    "name": "defaultVolume",
+    "title": "Default volume",
+    "description": "",
+    "type": "string",
+    "value": "1.0"
+  }]
+}
