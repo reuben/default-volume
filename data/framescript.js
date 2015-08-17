@@ -6,6 +6,10 @@ let Cr = Components.results;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
+function log(a) {
+  sendAsyncMessage("default-volume@jetpack:log", a);
+}
+
 let AudioPlaybackListener = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIObserver]),
 
@@ -15,21 +19,13 @@ let AudioPlaybackListener = {
   init() {
     Services.obs.addObserver(this, "audio-playback", false);
     addMessageListener("default-volume@jetpack:setVolume", this);
-    addEventListener("unload", () => {
-      AudioPlaybackListener.uninit();
-    });
-  },
-
-  uninit() {
-    Services.obs.removeObserver(this, "audio-playback");
-    removeMessageListener("default-volume@jetpack:setVolume", this);
   },
 
   observe(subject, topic, data) {
     if (topic === "audio-playback") {
-      if (subject && subject.top == content) {
+      if (subject && this.mSetup && data === "active") {
         if (this.mSetup && data === "active") {
-          this.setVolume();
+          this.setVolume(subject.top);
         }
       }
     }
@@ -42,12 +38,12 @@ let AudioPlaybackListener = {
     }
   },
 
-  setVolume() {
-    // let windowUtils = content.QueryInterface(Ci.nsIInterfaceRequestor)
-    //                          .getInterface(Ci.nsIDOMWindowUtils);
+  setVolume(window) {
+    // let windowUtils = window.QueryInterface(Ci.nsIInterfaceRequestor)
+    //                         .getInterface(Ci.nsIDOMWindowUtils);
     // windowUtils.audioVolume = this.mVolume;
 
-    let video = content.document.querySelectorAll("video");
+    let video = window.document.querySelectorAll("video");
     for (let v of video) {
       if (!v.__defaultVolumeSet) {
         v.volume = this.mVolume;
@@ -55,7 +51,7 @@ let AudioPlaybackListener = {
       }
     }
 
-    let audio = content.document.querySelectorAll("audio");
+    let audio = window.document.querySelectorAll("audio");
     for (let a of audio) {
       if (!a.__defaultVolumeSet) {
         a.volume = this.mVolume;
@@ -65,3 +61,5 @@ let AudioPlaybackListener = {
   }
 };
 AudioPlaybackListener.init();
+
+sendAsyncMessage("default-volume@jetpack:loaded");
