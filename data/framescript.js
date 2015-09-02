@@ -18,16 +18,23 @@ let AudioPlaybackListener = {
 
   init() {
     Services.obs.addObserver(this, "audio-playback", false);
+    Services.obs.addObserver(this, "message-manager-disconnect", false);
     addMessageListener("default-volume@jetpack:setVolume", this);
+  },
+
+  uninit() {
+    Services.obs.removeObserver(this, "audio-playback");
+    Services.obs.removeObserver(this, "message-manager-disconnect");
+    removeMessageListener("default-volume@jetpack:setVolume", this);
   },
 
   observe(subject, topic, data) {
     if (topic === "audio-playback") {
       if (subject && this.mSetup && data === "active") {
-        if (this.mSetup && data === "active") {
-          this.setVolume(subject.top);
-        }
+        this.setVolume(subject.top);
       }
+    } else if (topic === "message-manager-disconnect") {
+      this.uninit();
     }
   },
 

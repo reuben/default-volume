@@ -5,7 +5,7 @@
   "description": "Set default volume of HTML media",
   "author": "Reuben Morais",
   "license": "MPL 2.0",
-  "version": "0.2",
+  "version": "0.3",
   "preferences": [{
     "name": "defaultVolume",
     "title": "Default volume",
